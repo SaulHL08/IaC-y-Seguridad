@@ -1,0 +1,15 @@
+# Archivos de credenciales AWS
+.env
+
+# Archivos de estado de Terraform
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+
+# Directorio de Terraform
+.terraform/
+.terraform.lock.hcl
+
+# Archivos de variables sensibles
+terraform.tfvars
+*.auto.tfvars
