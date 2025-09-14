@@ -6,6 +6,9 @@
 *.tfstate.*
 *.tfstate.backup
 
+# Archivos de plan de Terraform
+*.tfplan
+
 # Directorio de Terraform
 .terraform/
 .terraform.lock.hcl
@@ -13,3 +16,10 @@
 # Archivos de variables sensibles
 terraform.tfvars
 *.auto.tfvars
+
+# Archivos de log
+*.log
+
+# Archivos temporales
+.DS_Store
+Thumbs.db
