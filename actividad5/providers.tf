@@ -13,12 +13,12 @@ terraform {
     }
   }
 
-  # Backend configuración (se completará después por dev2)
-  # backend "s3" {
-  #   bucket = "tf-remote-backend-XXXX"
-  #   key    = "actividad5/terraform.tfstate"
-  #   region = "us-east-1"
-  # }
+  # Backend S3 para estado remoto
+  backend "s3" {
+    bucket = "tf-remote-backend-6232"
+    key    = "actividad5/terraform.tfstate"
+    region = "us-east-1"
+  }
 }
 
 # Configuración del provider AWS
