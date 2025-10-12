@@ -1,0 +1,38 @@
+---
+# ========================================
+# Playbook: Verificar Conectividad
+# Empresa: Infraestructura Nuevo León
+# Propósito: Hacer ping a todos los equipos
+# ========================================
+
+- name: Verificar conectividad de servidores
+  hosts: todos_servidores
+  gather_facts: no
+  tasks:
+    - name: Ping a servidores
+      ansible.builtin.ping:
+      register: resultado_servidores
+    
+    - name: Mostrar estado de servidores
+      ansible.builtin.debug:
+        msg: "Servidor {{ inventory_hostname }} está CONECTADO"
+
+- name: Verificar conectividad de equipos
+  hosts: todos_equipos
+  gather_facts: no
+  tasks:
+    - name: Ping a equipos
+      ansible.builtin.ping:
+      register: resultado_equipos
+    
+    - name: Mostrar estado de equipos
+      ansible.builtin.debug:
+        msg: "Equipo {{ inventory_hostname }} está CONECTADO"
+
+- name: Resumen de conectividad
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Mensaje final
+      ansible.builtin.debug:
+        msg: "Verificación de conectividad completada para toda la infraestructura"
