@@ -1,0 +1,57 @@
+---
+- name: Instalar y configurar servidor web Apache
+  hosts: webservers
+  become: yes
+  
+  tasks:
+    - name: Actualizar cache de paquetes
+      apt:
+        update_cache: yes
+      when: ansible_os_family == "Debian"
+    
+    - name: Instalar Apache2
+      apt:
+        name: apache2
+        state: present
+      when: ansible_os_family == "Debian"
+    
+    - name: Asegurar que Apache esté iniciado
+      service:
+        name: apache2
+        state: started
+        enabled: yes
+    
+    - name: Verificar que Apache está corriendo
+      service_facts:
+    
+    - name: Mostrar estado de Apache
+      debug:
+        msg: "Apache está {{ 'ACTIVO ✓' if ansible_facts.services['apache2.service'].state == 'running' else 'INACTIVO ✗' }}"
+    
+    - name: Crear página de prueba
+      copy:
+        content: |
+          <!DOCTYPE html>
+          <html>
+          <head>
+              <title>Servidor Apache - Actividad 9</title>
+          </head>
+          <body>
+              <h1>¡Apache instalado correctamente!</h1>
+              <p>Este servidor fue configurado con Ansible</p>
+              <p>Actividad 9 - IaC y Seguridad</p>
+          </body>
+          </html>
+        dest: /var/www/html/index.html
+        mode: '0644'
+    
+    - name: Verificar que Apache responde
+      uri:
+        url: http://localhost
+        return_content: yes
+      register: pagina_web
+    
+    - name: Mostrar contenido de la página
+      debug:
+        msg: "Apache está respondiendo correctamente en http://localhost"
+      when: pagina_web.status == 200
