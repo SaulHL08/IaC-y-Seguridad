@@ -1,0 +1,110 @@
+---
+- name: Instalar Docker y ejecutar contenedor httpd
+  hosts: all
+  become: yes
+  
+  tasks:
+    - name: Actualizar cache de apt
+      apt:
+        update_cache: yes
+    
+    - name: Instalar dependencias necesarias
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+        state: present
+    
+    - name: Agregar clave GPG de Docker
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+    
+    - name: Obtener versión de Ubuntu
+      command: lsb_release -cs
+      register: ubuntu_version
+      changed_when: false
+    
+    - name: Agregar repositorio de Docker
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ubuntu_version.stdout }} stable"
+        state: present
+    
+    - name: Instalar Docker
+      apt:
+        name: 
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+        update_cache: yes
+    
+    - name: Verificar el estado de la instalación de Docker
+      command: docker --version
+      register: docker_version_output
+      changed_when: false
+    
+    - name: Mostrar versión de Docker
+      debug:
+        msg: "Docker instalado: {{ docker_version_output.stdout }}"
+    
+    - name: Iniciar el servicio de Docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
+    
+    - name: Verificar estado del servicio Docker
+      service_facts:
+    
+    - name: Mostrar estado del servicio Docker
+      debug:
+        msg: "Docker está {{ 'corriendo' if ansible_facts.services['docker.service'].state == 'running' else 'detenido' }}"
+    
+    - name: Agregar usuario al grupo docker
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+    
+    - name: Descargar imagen de httpd (Apache)
+      docker_image:
+        name: httpd
+        source: pull
+        state: present
+    
+    - name: Verificar el estado de la descarga de la imagen httpd
+      docker_image_info:
+        name: httpd
+      register: httpd_image_info
+    
+    - name: Mostrar información de la imagen httpd
+      debug:
+        msg: "Imagen httpd descargada correctamente. ID: {{ httpd_image_info.images[0].Id }}"
+      when: httpd_image_info.images | length > 0
+    
+    - name: Detener contenedor existente si existe
+      docker_container:
+        name: apache_container
+        state: absent
+      ignore_errors: yes
+    
+    - name: Lanzar el contenedor httpd
+      docker_container:
+        name: apache_container
+        image: httpd
+        state: started
+        ports:
+          - "80:80"
+        restart_policy: always
+    
+    - name: Verificar que el contenedor está corriendo
+      docker_container_info:
+        name: apache_container
+      register: container_info
+    
+    - name: Mostrar estado del contenedor
+      debug:
+        msg: "Contenedor apache_container está {{ container_info.container.State.Status }}"
