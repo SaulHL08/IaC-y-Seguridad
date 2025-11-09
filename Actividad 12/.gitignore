@@ -1,0 +1,9 @@
+# Vault sensitive files
+*-decrypted.txt
+vault-init-output.txt
+*.asc
+vault-data/
+*.key
+*token*
+unseal-key*
+root-key*
